@@ -12,7 +12,7 @@ const Footer = () => {
           alt="events app logo"
           className="cusror-pointer"
         />
-        <p>2023 Evently. All Rights Reserved.</p>
+        <p className="text-center">2023 Evently. All Rights Reserved.</p>
       </div>
     </footer>
   );
