@@ -32,6 +32,8 @@ export async function POST(req: Request) {
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
+  console.log("clerk webhook payload", body);
+
   // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
 
@@ -52,7 +54,6 @@ export async function POST(req: Request) {
   }
 
   // Get the ID and type
-  const { id } = evt.data;
   const eventType = evt.type;
 
   if (eventType === "user.created") {
@@ -103,9 +104,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "OK", user: deletedUser });
   }
-
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-  console.log("Webhook body:", body);
 
   return new Response("", { status: 200 });
 }

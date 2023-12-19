@@ -1,22 +1,26 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.NODE_ENV;
-
-let cached = (global as any).mongoose || { conn: null, promise: null };
+let isConnected: boolean = false;
 
 export const connectToDatabase = async () => {
-  if (cached.conn) return cached.conn;
+  mongoose.set("strictQuery", true);
 
-  if (!MONGODB_URI) throw new Error("MongoDB URI not found");
+  if (!process.env.MONGODB_URI) {
+    return console.error("Missing MONGODB_URL environment variable");
+  }
 
-  cached.promise =
-    cached.promise ||
-    mongoose.connect(MONGODB_URI, {
-      dbName: "events-app",
-      bufferCommands: false,
+  if (isConnected) {
+    return console.log("MondoDB is already connected");
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "evently",
     });
 
-  cached.conn = await cached.promise;
-
-  return cached.conn;
+    isConnected = true;
+    console.log("MongoDB is connected");
+  } catch (error) {
+    console.log("Error connecting to MongoDB", error);
+  }
 };
