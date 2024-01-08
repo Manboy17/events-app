@@ -1,8 +1,11 @@
+import Collection from "@/components/shared/Collection";
 import { Button } from "@/components/ui/button";
+import { getAllEvents } from "@/lib/actions/event.action";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const data = await getAllEvents();
   return (
     <>
       <section className="bg-primary-50 bg-dotted-pattern bg-contain py-5 md:py-10">
@@ -41,6 +44,14 @@ export default function Home() {
         <div className="flex flex-col md:flex-row gap-6 w-full">
           Search Filters
         </div>
+
+        <Collection
+          data={data}
+          emptyTitle=""
+          emptyTextSubtext=""
+          page={1}
+          limit={6}
+        />
       </section>
     </>
   );

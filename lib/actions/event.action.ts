@@ -39,6 +39,8 @@ export async function createEvent(params: CreateEventParams) {
       organizer: userId,
     });
 
+    revalidatePath(path);
+
     return JSON.parse(JSON.stringify(newEvent));
   } catch (error) {
     console.log(error);
@@ -51,7 +53,7 @@ export async function getEventById(params: GetEventByIdParams) {
 
     const { id } = params;
 
-    const event = await Event.findById(id);
+    const event = await populateEvent(Event.findById(id));
 
     if (!event) {
       throw new Error("Event not found");
