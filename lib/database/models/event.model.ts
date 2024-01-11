@@ -11,6 +11,7 @@ export interface IEvent extends Document {
   endDate: Date;
   price?: string;
   isFree: boolean;
+  url: string;
   category: { _id: string; name: string };
   organizer: { _id: string; firstName: string; lastName: string };
 }
@@ -25,6 +26,7 @@ const EventSchema = new Schema({
   endDate: { type: Date, default: Date.now },
   price: { type: String },
   isFree: { type: Boolean },
+  url: { type: String },
   category: { type: Schema.Types.ObjectId, ref: "Category" },
   organizer: { type: Schema.Types.ObjectId, ref: "User" },
 });

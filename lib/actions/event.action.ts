@@ -3,6 +3,7 @@
 import {
   CreateEventParams,
   DeleteEventParams,
+  EditEventParams,
   GetEventByIdParams,
 } from "@/types";
 import { connectToDatabase } from "../database";
@@ -94,6 +95,32 @@ export async function deleteEvent(params: DeleteEventParams) {
     }
 
     revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function editEvent(params: EditEventParams) {
+  try {
+    await connectToDatabase();
+
+    const { event, path } = params;
+
+    const editEvent = await Event.findById(event._id);
+
+    if (!editEvent) {
+      throw new Error("Event not found");
+    }
+
+    const edittedEvent = await Event.findByIdAndUpdate(
+      event._id,
+      { ...event, category: event.categoryId },
+      { new: true }
+    );
+
+    revalidatePath(path);
+
+    return JSON.parse(JSON.stringify(edittedEvent));
   } catch (error) {
     console.log(error);
   }

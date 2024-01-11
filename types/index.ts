@@ -26,14 +26,31 @@ export interface CreateEventParams {
     description: string;
     location: string;
     imageUrl: string;
-    startDateTime: Date;
-    endDateTime: Date;
+    startDate: Date;
+    endDate: Date;
     categoryId: string;
     price: string;
     isFree: boolean;
     url: string;
   };
-  userId: string | null;
+  userId: string | null | undefined;
+  path: string;
+}
+
+export interface EditEventParams {
+  event: {
+    _id: string;
+    title: string;
+    description: string;
+    location: string;
+    imageUrl: string;
+    startDate: Date;
+    endDate: Date;
+    categoryId: string;
+    price: string;
+    isFree: boolean;
+    url: string;
+  };
   path: string;
 }
 
