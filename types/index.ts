@@ -68,6 +68,10 @@ export interface GetRelatedEventsParams {
   eventId: string;
 }
 
+export interface EventsOrganizedByUserParams {
+  userId: string;
+}
+
 // categories
 
 export interface CreateNewCategoryParams {

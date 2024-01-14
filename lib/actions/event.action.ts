@@ -6,6 +6,7 @@ import {
   EditEventParams,
   GetEventByIdParams,
   GetRelatedEventsParams,
+  EventsOrganizedByUserParams,
 } from "@/types";
 import { connectToDatabase } from "../database";
 import Event from "../database/models/event.model";
@@ -144,6 +145,28 @@ export async function getRelatedEvents(params: GetRelatedEventsParams) {
     }
 
     return JSON.parse(JSON.stringify(relatedEvents));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function eventsOrganizedByUser(
+  params: EventsOrganizedByUserParams
+) {
+  try {
+    await connectToDatabase();
+
+    const { userId } = params;
+
+    const organizedEvents = await populateEvent(
+      Event.find({ organizer: userId })
+    );
+
+    if (!organizedEvents) {
+      throw new Error("Events not found");
+    }
+
+    return JSON.parse(JSON.stringify(organizedEvents));
   } catch (error) {
     console.log(error);
   }
