@@ -63,6 +63,11 @@ export interface GetEventByIdParams {
   id: string;
 }
 
+export interface GetRelatedEventsParams {
+  categoryId: string;
+  eventId: string;
+}
+
 // categories
 
 export interface CreateNewCategoryParams {

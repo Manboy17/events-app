@@ -5,6 +5,7 @@ import {
   DeleteEventParams,
   EditEventParams,
   GetEventByIdParams,
+  GetRelatedEventsParams,
 } from "@/types";
 import { connectToDatabase } from "../database";
 import Event from "../database/models/event.model";
@@ -121,6 +122,28 @@ export async function editEvent(params: EditEventParams) {
     revalidatePath(path);
 
     return JSON.parse(JSON.stringify(edittedEvent));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getRelatedEvents(params: GetRelatedEventsParams) {
+  try {
+    await connectToDatabase();
+
+    const { categoryId, eventId } = params;
+
+    const conditions = {
+      $and: [{ category: categoryId }, { _id: { $ne: eventId } }],
+    };
+
+    const relatedEvents = await populateEvent(Event.find(conditions));
+
+    if (!relatedEvents) {
+      throw new Error("Related events not found");
+    }
+
+    return JSON.parse(JSON.stringify(relatedEvents));
   } catch (error) {
     console.log(error);
   }
