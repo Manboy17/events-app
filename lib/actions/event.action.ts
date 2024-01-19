@@ -7,12 +7,14 @@ import {
   GetEventByIdParams,
   GetRelatedEventsParams,
   EventsOrganizedByUserParams,
+  GetAllEventsParams,
 } from "@/types";
 import { connectToDatabase } from "../database";
 import Event from "../database/models/event.model";
 import User from "../database/models/user.model";
 import Category from "../database/models/category.model";
 import { revalidatePath } from "next/cache";
+import { FilterQuery } from "mongoose";
 
 const populateEvent = (value: any) => {
   return value
@@ -68,11 +70,22 @@ export async function getEventById(params: GetEventByIdParams) {
   }
 }
 
-export async function getAllEvents() {
+export async function getAllEvents(params: GetAllEventsParams) {
   try {
     await connectToDatabase();
 
-    const events = await populateEvent(Event.find());
+    const { searchQuery } = params;
+
+    const query: FilterQuery<typeof Event> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: new RegExp(searchQuery, "i") } },
+        { description: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+
+    const events = await populateEvent(Event.find(query));
 
     if (!events) {
       throw new Error("Events not found");

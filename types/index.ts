@@ -20,6 +20,10 @@ export type UpdateUserParams = {
 
 // event
 
+export interface GetAllEventsParams {
+  searchQuery?: string;
+}
+
 export interface CreateEventParams {
   event: {
     title: string;
@@ -84,4 +88,10 @@ export interface ParamsProps {
   params: {
     id: string;
   };
+}
+
+// Global
+
+export interface SearchParamsProps {
+  searchParams: { [key: string]: string | undefined };
 }

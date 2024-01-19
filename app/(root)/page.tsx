@@ -1,11 +1,16 @@
 import Collection from "@/components/shared/Collection";
+import Search from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { getAllEvents } from "@/lib/actions/event.action";
+import { SearchParamsProps } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Home() {
-  const data = await getAllEvents();
+export default async function Home({ searchParams }: SearchParamsProps) {
+  const query = searchParams.q;
+  const data = await getAllEvents({ searchQuery: query });
+
+  console.log(data);
   return (
     <>
       <section className="bg-primary-50 bg-dotted-pattern bg-contain py-5 md:py-10">
@@ -42,13 +47,14 @@ export default async function Home() {
         </h2>
 
         <div className="flex flex-col md:flex-row gap-6 w-full">
-          Search Filters
+          <Search />
+          Filter
         </div>
 
         <Collection
           data={data}
-          emptyTitle=""
-          emptyTextSubtext=""
+          emptyTitle="No Events Yet!"
+          emptyTextSubtext="Become the first to host an event."
           page={1}
           limit={6}
         />
