@@ -24,21 +24,30 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Checkbox } from "../ui/checkbox";
 import { useUploadThing } from "@/lib/uploadthing";
-import { createEvent } from "@/lib/actions/event.action";
+import { createEvent, editEvent } from "@/lib/actions/event.action";
 import { useRouter } from "next/navigation";
+import { IEvent } from "@/lib/database/models/event.model";
 
 interface EventFormProps {
   type: string;
-  userId: string | null;
+  userId?: string | null;
+  event?: IEvent;
 }
 
-const EventForm = ({ type, userId }: EventFormProps) => {
+const EventForm = ({ type, userId, event }: EventFormProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { startUpload } = useUploadThing("imageUploader");
   const router = useRouter();
 
-  const initialValues = eventDefaultValues;
+  const initialValues =
+    event && type === "Edit"
+      ? {
+          ...event,
+          startDate: new Date(event.startDate),
+          endDate: new Date(event.endDate),
+        }
+      : eventDefaultValues;
 
   const form = useForm<z.infer<typeof eventFormSchema>>({
     resolver: zodResolver(eventFormSchema),
@@ -58,20 +67,43 @@ const EventForm = ({ type, userId }: EventFormProps) => {
         return;
       }
 
-      uploadedImage = uploadedImages[0].url;
+      uploadedImage = uploadedImages[0]?.url;
     }
 
     try {
       if (type === "Create") {
-        const newEvent = await createEvent({
-          event: { ...values, imageUrl: uploadedImage },
-          userId,
-          path: "/profile",
-        });
+        try {
+          const newEvent = await createEvent({
+            event: { ...values, imageUrl: uploadedImage },
+            userId,
+            path: "/profile",
+          });
 
-        if (newEvent) {
-          form.reset();
-          router.push(`/events/${newEvent._id}`);
+          if (newEvent) {
+            form.reset();
+            router.push(`/events/${newEvent._id}`);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (type === "Edit") {
+        if (!event) {
+          router.back();
+          return;
+        }
+
+        try {
+          const edittedEvent = await editEvent({
+            event: { ...values, imageUrl: uploadedImage, _id: event._id },
+            path: `/events/${event._id}`,
+          });
+
+          if (edittedEvent) {
+            form.reset();
+            router.push(`/events/${edittedEvent._id}`);
+          }
+        } catch (error) {
+          console.log(error);
         }
       }
     } catch (error) {
@@ -189,11 +221,11 @@ const EventForm = ({ type, userId }: EventFormProps) => {
         <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={form.control}
-            name="startDateTime"
+            name="startDate"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <div className="flex-center bg-grey-50 rounded-full overflow-hidden h-[54px] py-2 px-4">
+                  <div className="flex-center h-[54px] w-full overflow-hidden rounded-full bg-grey-50 px-4 py-2">
                     <Image
                       src="/assets/icons/calendar.svg"
                       alt="calendar"
@@ -201,7 +233,7 @@ const EventForm = ({ type, userId }: EventFormProps) => {
                       height={24}
                       className="filter-grey"
                     />
-                    <p className="ml-3 whitespace-nowrap text-grey-500">
+                    <p className="ml-3 whitespace-nowrap text-grey-600">
                       Start Date:
                     </p>
                     <DatePicker
@@ -209,6 +241,7 @@ const EventForm = ({ type, userId }: EventFormProps) => {
                       onChange={(date: Date) => field.onChange(date)}
                       showTimeSelect
                       timeInputLabel="Time:"
+                      dateFormat="MM/dd/yyyy h:mm aa"
                       wrapperClassName="datePicker"
                     />
                   </div>
@@ -220,11 +253,11 @@ const EventForm = ({ type, userId }: EventFormProps) => {
 
           <FormField
             control={form.control}
-            name="endDateTime"
+            name="endDate"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <div className="flex-center bg-grey-50 rounded-full overflow-hidden h-[54px] py-2 px-4">
+                  <div className="flex-center h-[54px] w-full overflow-hidden rounded-full bg-grey-50 px-4 py-2">
                     <Image
                       src="/assets/icons/calendar.svg"
                       alt="calendar"
@@ -232,7 +265,7 @@ const EventForm = ({ type, userId }: EventFormProps) => {
                       height={24}
                       className="filter-grey"
                     />
-                    <p className="ml-3 whitespace-nowrap text-grey-500">
+                    <p className="ml-3 whitespace-nowrap text-grey-600">
                       End Date:
                     </p>
                     <DatePicker
@@ -240,6 +273,7 @@ const EventForm = ({ type, userId }: EventFormProps) => {
                       onChange={(date: Date) => field.onChange(date)}
                       showTimeSelect
                       timeInputLabel="Time:"
+                      dateFormat="MM/dd/yyyy h:mm aa"
                       wrapperClassName="datePicker"
                     />
                   </div>

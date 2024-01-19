@@ -3,7 +3,9 @@
 import {
   CreateEventParams,
   DeleteEventParams,
+  EditEventParams,
   GetEventByIdParams,
+  GetRelatedEventsParams,
 } from "@/types";
 import { connectToDatabase } from "../database";
 import Event from "../database/models/event.model";
@@ -94,6 +96,54 @@ export async function deleteEvent(params: DeleteEventParams) {
     }
 
     revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function editEvent(params: EditEventParams) {
+  try {
+    await connectToDatabase();
+
+    const { event, path } = params;
+
+    const editEvent = await Event.findById(event._id);
+
+    if (!editEvent) {
+      throw new Error("Event not found");
+    }
+
+    const edittedEvent = await Event.findByIdAndUpdate(
+      event._id,
+      { ...event, category: event.categoryId },
+      { new: true }
+    );
+
+    revalidatePath(path);
+
+    return JSON.parse(JSON.stringify(edittedEvent));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getRelatedEvents(params: GetRelatedEventsParams) {
+  try {
+    await connectToDatabase();
+
+    const { categoryId, eventId } = params;
+
+    const conditions = {
+      $and: [{ category: categoryId }, { _id: { $ne: eventId } }],
+    };
+
+    const relatedEvents = await populateEvent(Event.find(conditions));
+
+    if (!relatedEvents) {
+      throw new Error("Related events not found");
+    }
+
+    return JSON.parse(JSON.stringify(relatedEvents));
   } catch (error) {
     console.log(error);
   }

@@ -1,4 +1,3 @@
-import { getAllEvents } from "@/lib/actions/event.action";
 import { IEvent } from "@/lib/database/models/event.model";
 import React from "react";
 import Card from "./Card";
@@ -24,13 +23,12 @@ const Collection = async ({
   urlParamName,
   collectionType,
 }: CollectionProps) => {
-  const events = await getAllEvents();
   return (
     <>
-      {events.length > 0 ? (
+      {data.length > 0 ? (
         <div className="flex flex-col gap-10 items-center">
           <ul className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-10">
-            {events.map((event: IEvent) => {
+            {data.map((event: IEvent) => {
               const hidePrice = collectionType === "My_Tickets";
 
               return (
