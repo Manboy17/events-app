@@ -9,9 +9,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home({ searchParams }: SearchParamsProps) {
+  const page = Number(searchParams.page) || 1;
   const query = searchParams.q;
   const filterQuery = searchParams.filter;
-  const data = await getAllEvents({ searchQuery: query, filter: filterQuery });
+  const data = await getAllEvents({
+    searchQuery: query,
+    filter: filterQuery,
+    page,
+    pageSize: 6,
+  });
   const categories = await getAllCategories();
 
   return (
@@ -55,11 +61,12 @@ export default async function Home({ searchParams }: SearchParamsProps) {
         </div>
 
         <Collection
-          data={data}
+          data={data?.data}
           emptyTitle="No Events Yet!"
           emptyTextSubtext="Become the first to host an event."
-          page={1}
+          page={page}
           limit={6}
+          totalPages={data?.totalPages}
         />
       </section>
     </>

@@ -21,6 +21,8 @@ export type UpdateUserParams = {
 export interface GetAllEventsParams {
   searchQuery?: string;
   filter?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface CreateEventParams {
@@ -69,6 +71,8 @@ export interface GetEventByIdParams {
 export interface GetRelatedEventsParams {
   categoryId: string;
   eventId: string;
+  page: number;
+  pageSize: number;
 }
 
 export interface EventsOrganizedByUserParams {
@@ -87,6 +91,7 @@ export interface ParamsProps {
   params: {
     id: string;
   };
+  searchParams?: { [key: string]: string | undefined };
 }
 
 // Global

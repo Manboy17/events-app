@@ -77,7 +77,9 @@ export async function getAllEvents(params: GetAllEventsParams) {
   try {
     await connectToDatabase();
 
-    const { searchQuery, filter } = params;
+    const { searchQuery, filter, page = 1, pageSize = 3 } = params;
+
+    const skipAmount = (page - 1) * pageSize;
 
     const searchConditions = searchQuery
       ? {
@@ -97,15 +99,23 @@ export async function getAllEvents(params: GetAllEventsParams) {
       ],
     };
 
-    const events = await populateEvent(Event.find(conditions)).sort({
-      createdAt: -1,
-    });
+    const events = await populateEvent(Event.find(conditions))
+      .sort({ createdAt: -1 })
+      .skip(skipAmount)
+      .limit(pageSize);
 
     if (!events) {
       throw new Error("Events not found");
     }
 
-    return JSON.parse(JSON.stringify(events));
+    const totalEvents = await Event.countDocuments(conditions);
+
+    const totalPages = Math.ceil(totalEvents / pageSize);
+
+    return {
+      data: JSON.parse(JSON.stringify(events)),
+      totalPages,
+    };
   } catch (error) {
     console.log(error);
   }
@@ -159,19 +169,29 @@ export async function getRelatedEvents(params: GetRelatedEventsParams) {
   try {
     await connectToDatabase();
 
-    const { categoryId, eventId } = params;
+    const { categoryId, eventId, page, pageSize } = params;
+
+    const skipAmount = (page - 1) * pageSize;
 
     const conditions = {
       $and: [{ category: categoryId }, { _id: { $ne: eventId } }],
     };
 
-    const relatedEvents = await populateEvent(Event.find(conditions));
+    const relatedEvents = await populateEvent(Event.find(conditions))
+      .skip(skipAmount)
+      .limit(pageSize);
 
     if (!relatedEvents) {
       throw new Error("Related events not found");
     }
 
-    return JSON.parse(JSON.stringify(relatedEvents));
+    const totalRelatedEvents = await Event.countDocuments(conditions);
+    const totalPages = Math.ceil(totalRelatedEvents / pageSize);
+
+    return {
+      data: JSON.parse(JSON.stringify(relatedEvents)),
+      totalPages,
+    };
   } catch (error) {
     console.log(error);
   }

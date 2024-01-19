@@ -5,12 +5,15 @@ import { ParamsProps } from "@/types";
 import Image from "next/image";
 import React from "react";
 
-const EventDetails = async ({ params: { id } }: ParamsProps) => {
+const EventDetails = async ({ params: { id }, searchParams }: ParamsProps) => {
   const eventDetails = await getEventById({ id });
+  const page = Number(searchParams?.page) || 1;
 
   const relatedEvents = await getRelatedEvents({
     categoryId: eventDetails.category._id,
     eventId: eventDetails._id,
+    page,
+    pageSize: 3,
   });
 
   return (
@@ -98,12 +101,13 @@ const EventDetails = async ({ params: { id } }: ParamsProps) => {
       <section className="wrapper py-5 md:py-10 text-start">
         <h1 className="h3-bold pb-5 md:pb-10">Related Events</h1>
         <Collection
-          data={relatedEvents}
+          data={relatedEvents?.data}
           emptyTitle="No Events Found"
           emptyTextSubtext="Come back later"
           collectionType="All_Events"
-          page={0}
-          limit={0}
+          page={page}
+          limit={3}
+          totalPages={relatedEvents?.totalPages}
         />
       </section>
     </>
