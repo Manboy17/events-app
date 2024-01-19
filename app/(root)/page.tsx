@@ -1,6 +1,8 @@
 import Collection from "@/components/shared/Collection";
+import Filter from "@/components/shared/Filter";
 import Search from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
+import { getAllCategories } from "@/lib/actions/category.action";
 import { getAllEvents } from "@/lib/actions/event.action";
 import { SearchParamsProps } from "@/types";
 import Image from "next/image";
@@ -8,9 +10,10 @@ import Link from "next/link";
 
 export default async function Home({ searchParams }: SearchParamsProps) {
   const query = searchParams.q;
-  const data = await getAllEvents({ searchQuery: query });
+  const filterQuery = searchParams.filter;
+  const data = await getAllEvents({ searchQuery: query, filter: filterQuery });
+  const categories = await getAllCategories();
 
-  console.log(data);
   return (
     <>
       <section className="bg-primary-50 bg-dotted-pattern bg-contain py-5 md:py-10">
@@ -48,7 +51,7 @@ export default async function Home({ searchParams }: SearchParamsProps) {
 
         <div className="flex flex-col md:flex-row gap-6 w-full">
           <Search />
-          Filter
+          <Filter categories={categories} />
         </div>
 
         <Collection

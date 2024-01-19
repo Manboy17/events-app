@@ -9,8 +9,6 @@ export interface CreateUserParams {
   picture: string;
 }
 
-// user
-
 export type UpdateUserParams = {
   firstName: string;
   lastName: string;
@@ -22,6 +20,7 @@ export type UpdateUserParams = {
 
 export interface GetAllEventsParams {
   searchQuery?: string;
+  filter?: string;
 }
 
 export interface CreateEventParams {

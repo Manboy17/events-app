@@ -23,14 +23,12 @@ const Search = () => {
 
         router.replace(newUrl, { scroll: false });
       } else {
-        if (searchQuery) {
-          const newUrl = removeUrlQuery({
-            params: searchParams.toString(),
-            keysToRemove: ["q"],
-          });
+        const newUrl = removeUrlQuery({
+          params: searchParams.toString(),
+          keysToRemove: ["q"],
+        });
 
-          router.replace(newUrl, { scroll: false });
-        }
+        router.replace(newUrl, { scroll: false });
       }
 
       return () => clearTimeout(debouncedFn);

@@ -14,7 +14,10 @@ import Event from "../database/models/event.model";
 import User from "../database/models/user.model";
 import Category from "../database/models/category.model";
 import { revalidatePath } from "next/cache";
-import { FilterQuery } from "mongoose";
+
+const getCategoryByName = async (filter: string) => {
+  return await Category.findOne({ name: { $regex: filter, $options: "i" } });
+};
 
 const populateEvent = (value: any) => {
   return value
@@ -74,18 +77,29 @@ export async function getAllEvents(params: GetAllEventsParams) {
   try {
     await connectToDatabase();
 
-    const { searchQuery } = params;
+    const { searchQuery, filter } = params;
 
-    const query: FilterQuery<typeof Event> = {};
+    const searchConditions = searchQuery
+      ? {
+          $or: [
+            { title: { $regex: searchQuery, $options: "i" } },
+            { description: { $regex: searchQuery, $options: "i" } },
+          ],
+        }
+      : {};
 
-    if (searchQuery) {
-      query.$or = [
-        { title: { $regex: new RegExp(searchQuery, "i") } },
-        { description: { $regex: new RegExp(searchQuery, "i") } },
-      ];
-    }
+    const filterConditions = filter ? await getCategoryByName(filter) : null;
 
-    const events = await populateEvent(Event.find(query));
+    const conditions = {
+      $and: [
+        searchConditions,
+        filterConditions ? { category: filterConditions._id } : {},
+      ],
+    };
+
+    const events = await populateEvent(Event.find(conditions)).sort({
+      createdAt: -1,
+    });
 
     if (!events) {
       throw new Error("Events not found");
